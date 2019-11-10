@@ -1,6 +1,6 @@
 import serial  
 import numpy   as np
-import matplotlib.pyplot as plt  
+import matplotlib.pyplot as plt
 from drawnow import *  
 from serial import Serial
 from scipy.interpolate import interp1d
@@ -17,6 +17,13 @@ xnew = np.linspace(450.00, 650.00, num=6, endpoint=True)
 fig = plt.figure()
 plt.ion()     
 
+def getMaximumIntensity(currentReadings):
+    maxIntensityIndex = 0
+    for num, value in enumerate(currentReadings,start=1):
+        if (value > currentReadings[maxIntensityIndex]):
+                maxIntensityIndex = num
+    return maxIntensityIndex
+        
 def handle_close(evt):
 	spectreData.reset_input_buffer()
 	plt.ioff()
@@ -46,7 +53,10 @@ while (loop):
 	if(len(spectreList)==6):
 		for num, value in enumerate(spectreList,start=0):
 			spectreReadings[num]=float(value)
-			
+        
+		maxIntensityIndex = getMaximumIntensity(spectreReadings)
+		print("Maximum intensity is " + str(spectreReadings[maxIntensityIndex]))
+        
 		defaultYLimit=max(spectreReadings)*1.1 # thus, the cubic spline should remain inside the plotarea
 		f=interp1d(x,spectreReadings,kind='cubic')
 
