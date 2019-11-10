@@ -5,6 +5,7 @@ from drawnow import *
 from serial import Serial
 from scipy.interpolate import interp1d
 import pandas as pd
+import datetime
 
 spectreData = serial.Serial("COM23", 115200) 
 
@@ -14,7 +15,7 @@ spectreReadings = [0.0,0.0,0.0,0.0,0.0,0.0]
 x = np.linspace(450.00, 650.00, num=6, endpoint=True)
 defaultYLimit = 860
 xnew = np.linspace(450.00, 650.00, num=6, endpoint=True) 
-fig = plt.figure()
+fig = plt.figure(1)
 plt.ion()     
 
 def getMaximumIntensity(currentReadings):
@@ -30,6 +31,9 @@ def handle_close(evt):
 	plt.close()
 	global loop
 	loop=False
+	#print("close event")
+	#exit()
+	#sys.exit()
  
 def doPlot():     
 	fig.canvas.mpl_connect('close_event', handle_close) # figured out finally how to close the "groundhog" window
@@ -38,25 +42,44 @@ def doPlot():
 	plt.grid(True)                              
 	plt.ylabel('Intensity Count')    
 	plt.xlabel('Wavelength in nm')                      
+	#plt.plot(spectreReadings, 'ro-', label='Spectral readings') 
 	plt.plot(x, spectreReadings, 'o', xnew, f(xnew), '-')       
-	plt.legend(loc='upper left')                
-	 
+	plt.legend(loc='upper left')
+
+def plotWavelengthVSTime():
+    fig2 = plt.figure(2)
+    plt.plot(times, maxReadingsTillNow)
+    plt.title('Max Wavelength vs Time')
+    plt.grid = False
+    plt.ylabel('Maximum Wavelength')
+    plt.xlabel('Time (in seconds)')
+
+
+times = []
+maxReadingsTillNow = []
+
+startTime =  datetime.datetime.now()
 while (loop):            
 	while (spectreData.inWaiting()== 0):        
 		pass            
 	spectreString = spectreData.readline().decode('utf8')
 	spectreList = spectreString.split(",")
 	if(len(spectreList)==6):
+        readingArrivalTime = datetime.datetime.now()
 		for num, value in enumerate(spectreList,start=0):
 			spectreReadings[num]=float(value)
         
-		maxIntensityIndex = int(getMaximumIntensity(spectreReadings))
+		maxIntensityIndex = getMaximumIntensity(spectreReadings)
 		print("Maximum intensity is " + str(spectreReadings[maxIntensityIndex]))
         
 		defaultYLimit=max(spectreReadings)*1.1 # thus, the cubic spline should remain inside the plotarea
 		f=interp1d(x,spectreReadings,kind='cubic')
 
+        maxReadingsTillNow.append(spectreReadings[maxIntensityIndex])
+        times.append(readingArrivalTime - startTime)
+
 		drawnow(doPlot)
+        plotWavelengthVSTime()
 
 data = {'Wavelength':[x],
         'Intensity':[spectreReadings]}        
