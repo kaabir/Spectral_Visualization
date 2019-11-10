@@ -30,9 +30,6 @@ def handle_close(evt):
 	plt.close()
 	global loop
 	loop=False
-	#print("close event")
-	#exit()
-	#sys.exit()
  
 def doPlot():     
 	fig.canvas.mpl_connect('close_event', handle_close) # figured out finally how to close the "groundhog" window
@@ -41,7 +38,6 @@ def doPlot():
 	plt.grid(True)                              
 	plt.ylabel('Intensity Count')    
 	plt.xlabel('Wavelength in nm')                      
-	#plt.plot(spectreReadings, 'ro-', label='Spectral readings') 
 	plt.plot(x, spectreReadings, 'o', xnew, f(xnew), '-')       
 	plt.legend(loc='upper left')                
 	 
@@ -54,7 +50,7 @@ while (loop):
 		for num, value in enumerate(spectreList,start=0):
 			spectreReadings[num]=float(value)
         
-		maxIntensityIndex = getMaximumIntensity(spectreReadings)
+		maxIntensityIndex = int(getMaximumIntensity(spectreReadings))
 		print("Maximum intensity is " + str(spectreReadings[maxIntensityIndex]))
         
 		defaultYLimit=max(spectreReadings)*1.1 # thus, the cubic spline should remain inside the plotarea
