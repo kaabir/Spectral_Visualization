@@ -31,23 +31,18 @@ def handle_close(evt):
 	plt.close()
 	global loop
 	loop=False
-	#print("close event")
-	#exit()
-	#sys.exit()
- 
-def doPlot():
-    plt2 = fig.add_subplot(121)     
-    fig.canvas.mpl_connect('close_event', handle_close) # figured out finally how to close the "groundhog" window
-    plt2.set_ylim(0,defaultYLimit)                            
-    plt2.set_title('Spectral Response')           
-    plt2.grid(True)                              
-    plt2.set_ylabel('Intensity Count')    
-    plt2.set_xlabel('Wavelength in nm')                      
-	#plt.plot(spectreReadings, 'ro-', label='Spectral readings') 
-    plt2.plot(x, spectreReadings, 'o', xnew, f(xnew), '-')       
-    plt2.legend(loc='upper left')
 
-def plotWavelengthVSTime():
+def plot1():
+    plt1 = fig.add_subplot(221)     
+    fig.canvas.mpl_connect('close_event', handle_close) # figured out finally how to close the "groundhog" window
+    plt1.set_ylim(0,defaultYLimit)                            
+    plt1.set_title('Spectral Response')           
+    plt1.grid(True)                              
+    plt1.set_ylabel('Intensity Count')    
+    plt1.set_xlabel('Wavelength (in nm)')                          
+    plt1.legend(loc='upper left')
+    plt1.plot(x, spectreReadings, 'o', xnew, f(xnew), '-')
+    
     plt2 = fig.add_subplot(222)
     plt2.set_title('Max Wavelength vs Time')
     plt2.set_ylim(0,defaultYLimit)
@@ -58,7 +53,6 @@ def plotWavelengthVSTime():
 
 times = []
 maxReadingsTillNow = []
-
 startTime =  datetime.datetime.now()
 while (loop):            
 	while (spectreData.inWaiting()== 0):        
@@ -80,11 +74,5 @@ while (loop):
         
 		defaultYLimit=max(spectreReadings)*1.1 # thus, the cubic spline should remain inside the plotarea
 		f=interp1d(x,spectreReadings,kind='cubic')
-		drawnow(doPlot)
-		#plotWavelengthVSTime()
-
-#data = {'Wavelength':[x],
- #       'Intensity':[spectreReadings]}        
-#df = pd.DataFrame(data, columns= ['Wavelength', 'Intensity'])
-#export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe.csv', index = True, header=True)
+		drawnow(plot1)
 print(".")
