@@ -1,6 +1,8 @@
+import pyfirmata
+import serial
 import numpy   as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+#from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from drawnow import *  
 from serial import Serial
 from scipy.interpolate import interp1d
@@ -18,15 +20,15 @@ class MaxIntensity:
         self.time = time
         
         
-#spectreData = serial.Serial("COM23", 115200) 
-spectreData =[0.0,0.0,0.0,0.0,0.0,0.0] 
+spectreData = serial.Serial("COM23", 115200) 
+#spectreData =[0.0,0.0,0.0,0.0,0.0,0.0] 
 
 loop=True
 allReadings = []
 spectreReadings = [0.0,0.0,0.0,0.0,0.0,0.0] 
 x = np.linspace(450.00, 650.00, num=6, endpoint=True)
 defaultYLimit = 1024
-defaultWavelengthLimit = 650.00
+defaultWavelengthLimit = 750.00
 xnew = np.linspace(450.00, 650.00, num=6, endpoint=True) 
 fig = plt.figure()
 plt.ion()     
@@ -54,13 +56,13 @@ def plot1():
     ax1.set_ylabel('Intensity Count')    
     ax1.set_xlabel('Wavelength (in nm)')                          
     ax1.legend(loc='upper left')
-    ax1.xaxis.set_minor_locator(MultipleLocator(5))
-    ax1.xaxis.set_minor_formatter(FormatStrFormatter("%d"))
-    ax1.plot(x, spectreReadings, 'r', xnew, f(xnew), '-')
+    #ax1.xaxis.set_minor_locator(MultipleLocator(15))
+    #ax1.xaxis.set_minor_formatter(FormatStrFormatter("%d"))
+    ax1.plot(x, spectreReadings, 'o', xnew, f(xnew), '-')
     
-    intensities = map(lambda x: x.intensity, maxIntensities)
-    times = map(lambda x: x.time, maxIntensities)
-    wavelengths = map(lambda x: x.wavelength, maxIntensities)
+    intensities = list(map(lambda x: x.intensity, maxIntensities))
+    times =list(map(lambda x: x.time, maxIntensities))
+    wavelengths = list(map(lambda x: x.wavelength, maxIntensities))
     
     ax2 = fig.add_subplot(312, autoscaley_on = True)
     ax2.set_title('Max Intensity vs Time')
@@ -76,7 +78,7 @@ def plot1():
     ax3.set_title('Max Wavelength vs Time')
     ax3.set_ylim(0,defaultWavelengthLimit)
     ax3.grid(True)
-    ax3.set_ylabel('Maximum Wavelength')
+    ax3.set_ylabel('Maximum Wavelength (in nm)')
     ax3.set_xlabel('Time (in seconds)')
     ax3.plot(times, wavelengths, 'b')
     plt.tight_layout()
@@ -109,24 +111,24 @@ while (loop):
 		f=interp1d(x,spectreReadings,kind='cubic')
 		drawnow(plot1)
 """
-data = {'Wavelength':[x],'Intensity':[spectreReadings],'Time':[times]}        
+data = {'Wavelength':[x],'Intensity':[spectreReadings],'Time':[time]}        
 df = pd.DataFrame(data, columns= ['Wavelength', 'Intensity', 'Time'])
 df1 = df.transpose()
 """
 
-wavelength450 = map(lambda x: x[0], allReadings)
-wavelength490 = map(lambda x: x[1], allReadings)
-wavelength530 = map(lambda x: x[2], allReadings)
-wavelength570 = map(lambda x: x[3], allReadings)
-wavelength610 = map(lambda x: x[4], allReadings)
-wavelength650 = map(lambda x: x[5], allReadings)
+wavelength450 = list(map(lambda x: x[0], allReadings))
+wavelength490 = list(map(lambda x: x[1], allReadings))
+wavelength530 = list(map(lambda x: x[2], allReadings))
+wavelength570 = list(map(lambda x: x[3], allReadings))
+wavelength610 = list(map(lambda x: x[4], allReadings))
+wavelength650 = list(map(lambda x: x[5], allReadings))
 data = {'450':wavelength450, 
         '490':wavelength490, 
         '530':wavelength530,
         '570':wavelength570,
         '610':wavelength610, 
         '650':wavelength650, 
-        'Time':[times]}        
+        'Time':[time]}        
 df = pd.DataFrame(data, columns= ['450', '490', '530', '570', '610', '650', 'Time'])
 export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe.csv', index = True, header=True)        
 print(".")
