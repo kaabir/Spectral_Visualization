@@ -83,7 +83,7 @@ def plot1():
     ax3.plot(times, wavelengths, 'b')
     plt.tight_layout()
 
-#times = []
+times = []
 #maxIntensitiesTillNow = []
 maxIntensities = []
 startTime =  datetime.datetime.now()
@@ -104,6 +104,7 @@ while (loop):
 			time = (readingArrivalTime - startTime).total_seconds()
 			intensity = MaxIntensity(spectreReadings[maxIntensityIndex], x[maxIntensityIndex], time)
 			maxIntensities.append(intensity)
+			times.append(time)
 		else:
 			print("Maximum intensity anamoly detected ")           
         
@@ -128,7 +129,7 @@ data = {'450':wavelength450,
         '570':wavelength570,
         '610':wavelength610, 
         '650':wavelength650, 
-        'Time':[time]}        
+        'Time':times}        
 df = pd.DataFrame(data, columns= ['450', '490', '530', '570', '610', '650', 'Time'])
 export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe.csv', index = True, header=True)        
 print(".")
