@@ -1,10 +1,7 @@
-import pyfirmata
 import serial
 import numpy   as np
 import matplotlib.pyplot as plt
-#from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from drawnow import *  
-from serial import Serial
 from scipy.interpolate import interp1d
 import pandas as pd
 import datetime
@@ -21,7 +18,6 @@ class MaxIntensity:
         
         
 spectreData = serial.Serial("COM23", 115200) 
-#spectreData =[0.0,0.0,0.0,0.0,0.0,0.0] 
 
 loop=True
 allReadings = []
@@ -84,7 +80,6 @@ def plot1():
     plt.tight_layout()
 
 times = []
-#maxIntensitiesTillNow = []
 maxIntensities = []
 startTime =  datetime.datetime.now()
 while (loop):         
@@ -98,8 +93,6 @@ while (loop):
 			spectreReadings[num]=float(value)
 		maxIntensityIndex = getMaximumIntensity(spectreReadings)
 		if(maxIntensityIndex != -1 and maxIntensityIndex < len(spectreReadings)):
-			print("Maximum intensity is " + str(spectreReadings[maxIntensityIndex]))
-			#maxIntensitiesTillNow.append(spectreReadings[maxIntensityIndex])
 			allReadings.append(spectreReadings)
 			time = (readingArrivalTime - startTime).total_seconds()
 			intensity = MaxIntensity(spectreReadings[maxIntensityIndex], x[maxIntensityIndex], time)
@@ -111,25 +104,20 @@ while (loop):
 		defaultYLimit=max(spectreReadings)*1.3
 		f=interp1d(x,spectreReadings,kind='cubic')
 		drawnow(plot1)
-"""
-data = {'Wavelength':[x],'Intensity':[spectreReadings],'Time':[time]}        
-df = pd.DataFrame(data, columns= ['Wavelength', 'Intensity', 'Time'])
-df1 = df.transpose()
-"""
 
 wavelength450 = list(map(lambda x: x[0], allReadings))
-wavelength490 = list(map(lambda x: x[1], allReadings))
-wavelength530 = list(map(lambda x: x[2], allReadings))
+wavelength500 = list(map(lambda x: x[1], allReadings))
+wavelength550 = list(map(lambda x: x[2], allReadings))
 wavelength570 = list(map(lambda x: x[3], allReadings))
-wavelength610 = list(map(lambda x: x[4], allReadings))
+wavelength600 = list(map(lambda x: x[4], allReadings))
 wavelength650 = list(map(lambda x: x[5], allReadings))
 data = {'450':wavelength450, 
-        '490':wavelength490, 
-        '530':wavelength530,
+        '500':wavelength500, 
+        '550':wavelength550,
         '570':wavelength570,
-        '610':wavelength610, 
+        '600':wavelength600, 
         '650':wavelength650, 
         'Time':times}        
-df = pd.DataFrame(data, columns= ['450', '490', '530', '570', '610', '650', 'Time'])
+df = pd.DataFrame(data, columns= ['450', '500', '550', '570', '600', '650', 'Time'])
 export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe.csv', index = True, header=True)        
 print(".")
