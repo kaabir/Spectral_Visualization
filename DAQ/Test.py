@@ -24,14 +24,17 @@ allReadings = []
 spectreReadings = [0.0,0.0,0.0,0.0,0.0,0.0] 
 x = np.linspace(450.00, 650.00, num=6, endpoint=True)
 defaultYLimit = 1024
-defaultWavelengthLimit = 750.00
+defaultWavelengthMaxLimit = 700.00
+defaultWavelengthMinLimit = 400.00
+maxIntensityMaxLimit = 22000
+maxIntensityMinLimit = 0
 xnew = np.linspace(450.00, 650.00, num=6, endpoint=True) 
 fig = plt.figure()
 plt.ion()     
 
 def getMaximumIntensity(currentReadings):
     maxIntensityIndex = -1
-    for num, value in enumerate(currentReadings,start=1):
+    for num, value in enumerate(currentReadings,start=0):
         if (maxIntensityIndex == -1 or value > currentReadings[maxIntensityIndex]):
                 maxIntensityIndex = num
     return maxIntensityIndex
@@ -62,7 +65,7 @@ def plot1():
     
     ax2 = fig.add_subplot(312, autoscaley_on = True)
     ax2.set_title('Max Intensity vs Time')
-    ax2.set_ylim(0,defaultYLimit)
+    ax2.set_ylim(maxIntensityMinLimit,maxIntensityMaxLimit)
     ax2.grid(True)
     ax2.set_ylabel('Maximum Intensity')
     ax2.set_xlabel('Time (in seconds)')
@@ -72,7 +75,7 @@ def plot1():
     
     ax3 = fig.add_subplot(313)
     ax3.set_title('Max Wavelength vs Time')
-    ax3.set_ylim(0,defaultWavelengthLimit)
+    ax3.set_ylim(defaultWavelengthMinLimit,defaultWavelengthMaxLimit)
     ax3.grid(True)
     ax3.set_ylabel('Maximum Wavelength (in nm)')
     ax3.set_xlabel('Time (in seconds)')
@@ -93,7 +96,7 @@ while (loop):
 			spectreReadings[num]=float(value)
 		maxIntensityIndex = getMaximumIntensity(spectreReadings)
 		if(maxIntensityIndex != -1 and maxIntensityIndex < len(spectreReadings)):
-			allReadings.append(spectreReadings)
+			allReadings.append(spectreReadings[:])
 			time = (readingArrivalTime - startTime).total_seconds()
 			intensity = MaxIntensity(spectreReadings[maxIntensityIndex], x[maxIntensityIndex], time)
 			maxIntensities.append(intensity)
@@ -119,5 +122,5 @@ data = {'450':wavelength450,
         '650':wavelength650, 
         'Time':times}        
 df = pd.DataFrame(data, columns= ['450', '500', '550', '570', '600', '650', 'Time'])
-export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe.csv', index = True, header=True)        
+export_csv = df.to_csv (r'C:\Users\debacle\Documents\Plot\DAQ\export_dataframe1.csv', index = True, header=True)        
 print(".")
